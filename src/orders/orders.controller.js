@@ -1,40 +1,36 @@
 const path = require("path");
-
-// Use the existing order data
 const orders = require(path.resolve("src/data/orders-data"));
-
-// Use this function to assigh ID's when necessary
-const nextId = require("../utils/nextId");
+const nextId = require("../utils/nextId");  // util function to assign ID's
 
 // middleware
 function isValidOrder(req, res, next) {
   const order = req.body.data;
-  if (!order.deliverTo || order.deliverTo === '') {
-    return next({
-      status: 400,
-      message: 'Order must include a deliverTo',
-    })
-  } else if (!order.mobileNumber || order.mobileNumber === '') {
-    return next({
-      status: 400,
-      message: 'Order must include a mobileNumber',
-    })
-  } else if (!order.dishes) {
-    return next({
-      status: 400,
-      message: 'Order must include a dish',
-    })
-  } else if (order.dishes.length < 1 || !Array.isArray(order.dishes)) {
-    return next({
-      status: 400,
-      message: 'Order must include at least one dish',
-    })
-  } 
+  const REQUIRED_PROPERTIES = ['deliverTo', 'mobileNumber', 'dishes'];
+  for (let property of REQUIRED_PROPERTIES) {
+    if (!order[property]) {
+      const message = property === 'dishes' ? `Order must include a dish` : `Order must include a ${property}`;
+      return next({
+        status: 400,
+        message,
+      });
+    }
+  }
   res.locals.order = order;
   next();
 }
 
-function hasValidQty(req, res, next) {
+function orderHasValidQty(req, res, next) {
+  const orderDishes = res.locals.order.dishes;
+  if (orderDishes.length < 1 || !Array.isArray(orderDishes)) {
+    return next({
+      status: 400,
+      message: 'Order must include at least one dish',
+    })
+  }
+  next();
+} 
+
+function dishesHaveValidQty(req, res, next) {
   const orderDishes = res.locals.order.dishes;
   let invalidDish;
   for (let i = 0; i < orderDishes.length; i++) {
@@ -85,7 +81,7 @@ function hasValidStatus(req, res, next) {
 function routeMatchesId(req, res, next) {
   const orderId = req.params.orderId;
   const order = res.locals.order;
-  if (!order.id || order.id === undefined || order.id === null) {
+  if (!order.id) {
     return next();
   }
   if (orderId !== order.id) {
@@ -107,20 +103,14 @@ function isPending(req, res, next) {
   })
 }
 
-// TODO: Implement the /dishes handlers needed to make the tests pass
+// /orders route handlers 
 function list(req, res) {
   res.json({ data: orders })
 };
 
 function create(req, res) {
-  const { deliverTo, mobileNumber, status = '', dishes } = res.locals.order;
-  const newOrder = {
-    id: nextId(),
-    deliverTo,
-    mobileNumber,
-    status,
-    dishes,
-  }
+  const newOrder = res.locals.order;
+  newOrder.id = nextId();
   orders.push(newOrder);
   res.status(201).json({ data: newOrder });
 };
@@ -149,8 +139,8 @@ function destroy(req, res) {
 
 module.exports = {
   list, 
-  create: [isValidOrder, hasValidQty, create],
+  create: [isValidOrder, orderHasValidQty, dishesHaveValidQty, create],
   read: [orderExists, read],
-  update: [orderExists, isValidOrder, hasValidQty, hasValidStatus, routeMatchesId, update],
+  update: [orderExists, isValidOrder, orderHasValidQty, dishesHaveValidQty, hasValidStatus, routeMatchesId, update],
   delete: [orderExists, isPending, destroy],
 }
