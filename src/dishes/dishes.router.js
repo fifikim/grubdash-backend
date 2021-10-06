@@ -8,12 +8,12 @@ router
   .route('/:dishId')
   .get(controller.read)
   .put(controller.update)
-  .all(methodNotAllowed);
+  .all(methodNotAllowed); // responds with 405 status if other method attempted
 
 router
   .route('/')
   .get(controller.list)
   .post(controller.create)
-  .all(methodNotAllowed);
+  .all(methodNotAllowed); // responds with 405 status if other method attempted
 
 module.exports = router;

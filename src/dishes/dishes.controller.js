@@ -2,8 +2,10 @@ const path = require("path");
 const dishes = require(path.resolve("src/data/dishes-data"));
 const nextId = require("../utils/nextId");  // util function to assign ID's
 
-// middleware
-function isValidDish(req, res, next) {
+// router middleware
+
+// validates that new/updated dish has required inputs
+function isValidDish(req, res, next) {  
   const dish = req.body.data;
   const REQUIRED_PROPERTIES = ['name', 'description', 'price', 'image_url'];
   for (let property of REQUIRED_PROPERTIES) {
@@ -18,7 +20,8 @@ function isValidDish(req, res, next) {
   next();
 }
 
-function hasValidPrice(req, res, next) {
+// validates that new/updated dish price is integer > 0
+function hasValidPrice(req, res, next) { 
   const price = res.locals.dish.price;
   if (typeof(price) !== 'number' || price <= 0 || price !== parseInt(price)) {
     return next({
@@ -29,7 +32,8 @@ function hasValidPrice(req, res, next) {
   next();
 }
 
-function dishExists(req, res, next) {
+// validates that dish to update has existing dish Id
+function dishExists(req, res, next) { 
   const dishId = req.params.dishId;
   const foundDish = dishes.find((dish) => dish.id === dishId);
   if (foundDish) {
@@ -42,11 +46,12 @@ function dishExists(req, res, next) {
   });
 }
 
-function routeMatchesId(req, res, next) {
+// validates that dish to update has Id matching route param Id
+function routeMatchesId(req, res, next) { 
   const dishId = req.params.dishId;
-  const updatedDish = res.locals.dish;
-  if (!updatedDish.id || updatedDish.id === undefined || updatedDish.id === null) {
-    return next();
+  const updatedDish = res.locals.dish;    
+  if (!updatedDish.id) {  // passes validation if data.id undefined
+    return next();      
   }
   if (dishId !== updatedDish.id) {
     return next({
@@ -58,22 +63,27 @@ function routeMatchesId(req, res, next) {
 }
 
 // /dishes route handlers
-function list(req, res) {
+
+// responds with 200 status, list of all dishes 
+function list(req, res) { 
   res.json({ data: dishes })
 };
 
-function create(req, res) {
+// creates new dish & responds with 201 status, new dish entry
+function create(req, res) { 
   const newDish = res.locals.dish;
   newDish.id = nextId();
   dishes.push(newDish);
   res.status(201).json({ data: newDish });
 };
 
-function read(req, res) {
+// responds with 200 status, single dish entry at dishes/:dishId
+function read(req, res) {  
   res.json({ data: res.locals.dish });
 }
 
-function update(req, res) {
+// updates dish & responds with 200 status, updated dish entry
+function update(req, res) { 
   const dishId = req.params.dishId;
   const updatedDish = res.locals.dish;
   if (!updatedDish.id) {

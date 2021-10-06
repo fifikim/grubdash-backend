@@ -2,8 +2,10 @@ const path = require("path");
 const orders = require(path.resolve("src/data/orders-data"));
 const nextId = require("../utils/nextId");  // util function to assign ID's
 
-// middleware
-function isValidOrder(req, res, next) {
+// router middleware
+
+// validates new/updated order for required inputs
+function isValidOrder(req, res, next) { 
   const order = req.body.data;
   const REQUIRED_PROPERTIES = ['deliverTo', 'mobileNumber', 'dishes'];
   for (let property of REQUIRED_PROPERTIES) {
@@ -19,7 +21,8 @@ function isValidOrder(req, res, next) {
   next();
 }
 
-function orderHasValidQty(req, res, next) {
+// validates that order contains dish array containing at least one dish
+function orderHasValidQty(req, res, next) { 
   const orderDishes = res.locals.order.dishes;
   if (orderDishes.length < 1 || !Array.isArray(orderDishes)) {
     return next({
@@ -30,6 +33,7 @@ function orderHasValidQty(req, res, next) {
   next();
 } 
 
+// validates that each dish in order[dishes] array contains quantity of integer > 0
 function dishesHaveValidQty(req, res, next) {
   const orderDishes = res.locals.order.dishes;
   let invalidDish;
@@ -49,6 +53,7 @@ function dishesHaveValidQty(req, res, next) {
   next();
 }
 
+// validates that order to read/update/delete has existing Id
 function orderExists(req, res, next) {
   const orderId = req.params.orderId;
   const foundOrder = orders.find((order) => order.id === orderId);
@@ -62,6 +67,7 @@ function orderExists(req, res, next) {
   });
 }
 
+// validates that order to update/delete has valid status
 function hasValidStatus(req, res, next) {
   const order = res.locals.order;
   if (order.status === 'pending' || order.status === 'preparing' || order.status === 'out-for-delivery') {
@@ -78,6 +84,7 @@ function hasValidStatus(req, res, next) {
   });
 }
 
+// validates that order to update/delete has Id matching route param Id
 function routeMatchesId(req, res, next) {
   const orderId = req.params.orderId;
   const order = res.locals.order;
@@ -93,6 +100,7 @@ function routeMatchesId(req, res, next) {
   next();
 }
 
+// validates that order to delete has 'pending' status
 function isPending(req, res, next) {
   if(res.locals.order.status === 'pending') {
     return next();
@@ -104,10 +112,13 @@ function isPending(req, res, next) {
 }
 
 // /orders route handlers 
+
+// responds with 200 status, list of all orders
 function list(req, res) {
   res.json({ data: orders })
 };
 
+// creates new order & responds with 201 status, new order entry
 function create(req, res) {
   const newOrder = res.locals.order;
   newOrder.id = nextId();
@@ -115,10 +126,12 @@ function create(req, res) {
   res.status(201).json({ data: newOrder });
 };
 
+// responds with 200 status, single order at orders/:orderId
 function read(req, res) {
   res.json({ data: res.locals.order });
 }
 
+// updates order & responds with 200 status, updated order entry 
 function update(req, res) {
   const orderId = req.params.orderId;
   const order = res.locals.order;
@@ -128,6 +141,7 @@ function update(req, res) {
   res.json({ data: order });
 }
 
+// deletes order & responds with 204 status
 function destroy(req, res) {
   const { orderId } = req.params;
   const index = orders.findIndex((order) => order.id === orderId);
