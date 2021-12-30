@@ -5,23 +5,32 @@ module.exports = [
     description: "Crunchy stir fry featuring fresh broccoli and beetroot",
     price: 15,
     image_url:
-      "https://images.pexels.com/photos/4144234/pexels-photo-4144234.jpeg?h=530&w=350",
+      "https://149366112.v2.pressablecdn.com/wp-content/uploads/2019/03/screen-shot-2019-03-12-at-11-43-18-am.png",
   },
   {
     id: "90c3d873684bf381dfab29034b5bba73",
-    name: "Falafel and tahini bagel",
-    description: "A warm bagel filled with falafel and tahini",
+    name: "Falafel and tahini grain bowl",
+    description: "A warm grain bowl filled with falafel and tahini",
     price: 6,
     image_url:
-      "https://images.pexels.com/photos/4560606/pexels-photo-4560606.jpeg?h=530&w=350",
+      "https://dishingouthealth.com/wp-content/uploads/2021/01/FalafelBowls_Square.jpg",
   },
   {
     id: "d351db2b49b69679504652ea1cf38241",
-    name: "Dolcelatte and chickpea spaghetti",
+    name: "Dolcelatte and caramelized onion pappardelle",
     description:
-      "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
+      "Pappardelle topped with a blend of dolcelatte and caramelized onion",
     price: 19,
     image_url:
-      "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350",
+      "https://www.cookingbites.com/attachments/fullsizeoutput_70be-jpeg.58402/",
+  },
+  {
+    id: "d352b98989b69679504652ea1cf67346",
+    name: "Spicy salmon poke bowl",
+    description:
+      "Sockeye salmon tossed with a zesty yuzu seaweed salad",
+    price: 16,
+    image_url:
+      "https://www.jessicagavin.com/wp-content/uploads/2016/06/sockeye-salmon-poke-spicy-soy-sauce_1200.jpg",
   },
 ];
